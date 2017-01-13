@@ -36,6 +36,7 @@ class FidelidadeVeiculos:
 
     def iniciar(self):
         print("estou aqui")
+        """
         timeout = 2
         try:
             element_present = EC.presence_of_element_located((By.LINK_TEXT, 'AU-TO-IB MultiPlanos'))
@@ -46,4 +47,5 @@ class FidelidadeVeiculos:
         except TimeoutException:
             print
             "Timed out waiting for page to load"
+        """
 

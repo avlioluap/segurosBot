@@ -4,6 +4,7 @@ from fidelidadeVeiculos import FidelidadeVeiculos
 
 class SimuladorGui:
     def __init__(self, master):
+        #baseado em https://github.com/slauzinho/caixa.py/blob/master/caixa.py
         self.master = master
         master.title("Simulador GUI")
         master.minsize(width=800, height=400)
