@@ -1,10 +1,18 @@
 from tkinter import *
-import acessodb as db
+import json
+import threading
+import sys
+from eventos import Eventos
+from seguradoras import Seguradoras
 from fidelidadeVeiculos import FidelidadeVeiculos
 
+
 class SimuladorGui:
+    seguradoras = None
+    t = None
+
     def __init__(self, master):
-        #baseado em https://github.com/slauzinho/caixa.py/blob/master/caixa.py
+        # baseado em https://github.com/slauzinho/caixa.py/blob/master/caixa.py
         self.master = master
         master.title("Simulador GUI")
         master.minsize(width=800, height=400)
@@ -21,16 +29,55 @@ class SimuladorGui:
         self.init_button.pack()
 
         # fechar btn
-        self.close_button = Button(groupLeft, text="Fechar", width=self.btnSize, command=master.quit)
+        self.close_button = Button(groupLeft, text="Fechar", width=self.btnSize, command=self.fechar)
         self.close_button.pack()
 
         # caixa de texto com scroll
         self.caixaTexto(master)
 
-    def iniciar(self):
-        db.get_database_version()
+        # procurar list de seguradoras
+        self.seguradoras = Seguradoras().procurarSeguradoras()
 
-        FidelidadeVeiculos()
+    def iniciar(self):
+        # Acessodb.get_database_version(self)
+        self.procurarEventos()
+        # loop para voltar a procurar eventos de 10 em 10 segundos
+        global t
+        t = threading.Timer(10, self.iniciar, ())
+        t.name = "procura eventos"
+        t.start()
+
+    def fechar(self):
+        for t in threading.enumerate():
+            if t.name == "procura eventos":
+                t.cancel()
+        # fechar aplicação
+        sys.exit(0)
+
+    def procurarEventos(self):
+        # verificar eventos
+        eventoDados = Eventos()
+
+        if eventoDados:
+            # verificar que bots tem de abrir
+            # "seguradoras":{"1":"true"}
+            json_decoded = json.loads(json.dumps(eventoDados.data))
+
+            for id in json_decoded['seguradoras']:
+                # if json_decoded['seguradoras'][id]:
+                # procurar dados da seguradora
+                for seguradora in self.seguradoras:
+                    if int(id) == seguradora[0][0]:
+                        # encaminhar para a respectiva seguradora
+                        if seguradora[0][2] == "Fidelidade Mundial":
+                            FidelidadeVeiculos(json_decoded, seguradora)
+                            return True
+
+                        if seguradora[0][2] == "Tranquilidade":
+                            # Tranquilidade(eventoDados)
+                            return True
+        else:
+            print("não existe eventos activos")
 
     def caixaTexto(self, master):
         # add a frame and put a text area into it

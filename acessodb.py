@@ -1,23 +1,37 @@
 import psycopg2 as db
 
-conn = db.connect('host=192.168.0.252 dbname=simula user=postgres password=postgres')
-cur = conn.cursor()
 
+class Acessodb:
 
-def get_database_version():
-    try:
-        print('PostgreSQL database version:')
-        cur.execute('SELECT version()')
+    host = "192.168.0.252"
+    user = "postgres"
+    passwd = "postgres"
+    dbname = "simula"
 
-        # display the PostgreSQL database server version
-        db_version = cur.fetchone()
-        print(db_version)
+    def __init__(self):
+        try:
+            conn = db.connect(host=self.host,
+                                    user=self.user,
+                                    password=self.passwd,
+                                    dbname=self.dbname)
 
-        # close the communication with the PostgreSQL
-        cur.close()
-    except (Exception, db.DatabaseError) as error:
-        print(error)
+            self.cur = conn.cursor
+        except:
+            print("Erro de conexao a BD")
 
-def close_database():
-    conn.close()
-    print('Database connection closed.')
+    def __del__(self):
+        del self
+
+    # def get_database_version(self):
+    #    try:
+    #        print('PostgreSQL database version:')
+    #        self.cur.execute('SELECT version()')
+
+            # display the PostgreSQL database server version
+    #        db_version = self.cur.fetchone()
+    #        print(db_version)
+
+            # close the communication with the PostgreSQL
+    #        self.cur.close()
+    #    except (Exception, db.DatabaseError) as error:
+    #        print(error)
